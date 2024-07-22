@@ -31,8 +31,8 @@ class FilmControllerTests {
 
 	@Test
 	@DisplayName("Названеи фильма не может быть пустым")
-	void FilmNameCannotBeNull() {
-		Assertions.assertThrows(ValidationException.class, ()-> {
+	void filmNameCannotBeNull() {
+		Assertions.assertThrows(ValidationException.class, () -> {
 			film.setName("");
 			filmorateManager.validateFilm(film);
 		});
@@ -40,7 +40,7 @@ class FilmControllerTests {
 
 	@Test
 	@DisplayName("Добавление фильма с описанием более 200 символов")
-	void FilmDescriptionMoreThen200Characters() {
+	void filmDescriptionMoreThen200Characters() {
 		Assertions.assertThrows(ValidationException.class, () -> {
 			for (int i = 0; i < 20; i++) {
 				film.setDescription(film.getDescription() + "Something++");
@@ -52,8 +52,8 @@ class FilmControllerTests {
 
 	@Test
 	@DisplayName("Дата релиза фильма до 28 декабря 1895 года")
-	void FilmReleaseDateBeforeCheckDate() {
-		Assertions.assertThrows(ValidationException.class, ()-> {
+	void filmReleaseDateBeforeCheckDate() {
+		Assertions.assertThrows(ValidationException.class, () -> {
 			film.setReleaseDate(LocalDate.of(1895,12,27));
 			filmorateManager.validateFilm(film);
 		});
@@ -61,8 +61,8 @@ class FilmControllerTests {
 
 	@Test
 	@DisplayName("Продолжительность фильма не может быть отрицательным числом")
-	void FilmDurationCannotBeANegativeNumber() {
-		Assertions.assertThrows(ValidationException.class, ()-> {
+	void filmDurationCannotBeANegativeNumber() {
+		Assertions.assertThrows(ValidationException.class, () -> {
 			film.setDuration(-20L);
 			filmorateManager.validateFilm(film);
 		});
@@ -70,8 +70,8 @@ class FilmControllerTests {
 
 	@Test
 	@DisplayName("Ошибка при обновлении фильма при отсутствии Id")
-	void FilmUpdateErrorWithoutId() {
-		Assertions.assertThrows(UpdateException.class, ()-> {
+	void filmUpdateErrorWithoutId() {
+		Assertions.assertThrows(UpdateException.class, () -> {
 			film.setId(null);
 			filmorateManager.validateUpdateFilm(film);
 		});

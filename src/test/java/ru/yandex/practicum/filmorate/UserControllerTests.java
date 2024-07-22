@@ -29,7 +29,7 @@ public class UserControllerTests {
 
     @DisplayName("Электронная почта не может быть пустой и должна содержать символ @")
     @Test
-    void UserEmailCannotBeEmptyAndMustContainSymbol() {
+    void userEmailCannotBeEmptyAndMustContainSymbol() {
         Assertions.assertThrows(ValidationException.class, () -> {
             user.setEmail("Other");
             filmorateManager.validateUser(user);
@@ -38,7 +38,7 @@ public class UserControllerTests {
 
     @DisplayName("Логин не может быть пустым и содержать пробелы")
     @Test
-    void UserLoginCannotBeEmpty() {
+    void userLoginCannotBeEmpty() {
         Assertions.assertThrows(ValidationException.class, () -> {
             user.setLogin("Other user");
             filmorateManager.validateUser(user);
@@ -47,7 +47,7 @@ public class UserControllerTests {
 
     @DisplayName("Дата рождения не может быть в будущем")
     @Test
-    void UserBirthdayCannotBeInTheFuture() {
+    void userBirthdayCannotBeInTheFuture() {
         Assertions.assertThrows(ValidationException.class, () -> {
             user.setBirthday(LocalDate.now().plusDays(1));
             filmorateManager.validateUser(user);
@@ -56,7 +56,7 @@ public class UserControllerTests {
 
     @DisplayName("Используется логин вместо имени")
     @Test
-    void UserLoginWillBeSsedIfNoNameIsSpecified() {
+    void userLoginWillBeSsedIfNoNameIsSpecified() {
         user.setName(null);
         filmorateManager.validateUser(user);
         Assertions.assertEquals(user.getLogin(),user.getName());
