@@ -19,7 +19,7 @@ public class ManagerExceptionHandler {
         log.error("Возникла ошибка валидации данных: {}", exception.toString());
         Map<String,Code> response = new HashMap<>();
         response.put(exception.getMessage(),exception.getCode());
-        return new ResponseEntity<>(response,HttpStatus.UNPROCESSABLE_ENTITY);
+        return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
