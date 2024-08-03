@@ -1,17 +1,19 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
-import ru.yandex.practicum.filmorate.exception.UpdateException;
+import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 
+@Component
 @Slf4j
 public class FilmorateManager implements MappingManager {
-    private int filmId = 0;
-    private int userId = 0;
+    private Long filmId = 0L;
+    private Long userId = 0L;
 
     @Override
     public boolean validateFilm(Film film) {
@@ -38,7 +40,9 @@ public class FilmorateManager implements MappingManager {
     @Override
     public boolean validateUpdateFilm(Film film) {
         if (film.getId() == null) {
-            throw new UpdateException("Фильм с данным Id не найден");
+            throw new EntityNotFoundException("Фильм с данным Id не найден");
+            //Получается лишняя проверка и метод де-факто тогда не особо нужен если мы делаем проверку на
+            // null в контроллере. Справедливо и для User
         }
         validateFilm(film);
         return true;
@@ -68,19 +72,19 @@ public class FilmorateManager implements MappingManager {
     @Override
     public boolean validateUpdateUser(User user) {
         if (user.getId() == null) {
-            throw new UpdateException("Пользователь с данным Id не найден");
+            throw new EntityNotFoundException("Пользователь с данным Id не найден");
         }
         validateUser(user);
         return true;
     }
 
     @Override
-    public int nextFilmId() {
+    public Long nextFilmId() {
         return ++filmId;
     }
 
     @Override
-    public int nextUserId() {
+    public Long nextUserId() {
         return ++userId;
     }
 

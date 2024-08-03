@@ -14,22 +14,24 @@ import java.time.LocalDate;
 @SpringBootTest
 public class UserControllerTests {
     private FilmorateManager filmorateManager;
-    private User user;
 
     @BeforeEach
     void setUp() {
         filmorateManager = new FilmorateManager();
-        user = new User();
+    }
+
+
+
+    @DisplayName("Электронная почта не может быть пустой и должна содержать символ @")
+    @Test
+    void validateUser_throwValidationException_emailNullOrDoesNotContainSymbol() {
+        User user = new User();
         user.setName("Name");
         user.setEmail("@Email");
         user.setLogin("Login");
         user.setBirthday(LocalDate.of(1980,12,28));
         user.setId(filmorateManager.nextUserId());
-    }
-
-    @DisplayName("Электронная почта не может быть пустой и должна содержать символ @")
-    @Test
-    void userEmailCannotBeEmptyAndMustContainSymbol() {
+        // Или лучше создавать тестовый объект так? Смущает просто дублирование кода
         Assertions.assertThrows(ValidationException.class, () -> {
             user.setEmail("Other");
             filmorateManager.validateUser(user);
@@ -38,7 +40,13 @@ public class UserControllerTests {
 
     @DisplayName("Логин не может быть пустым и содержать пробелы")
     @Test
-    void userLoginCannotBeEmpty() {
+    void validateUser_throwValidationException_loginNull() {
+        User user = new User();
+        user.setName("Name");
+        user.setEmail("@Email");
+        user.setLogin("Login");
+        user.setBirthday(LocalDate.of(1980,12,28));
+        user.setId(filmorateManager.nextUserId());
         Assertions.assertThrows(ValidationException.class, () -> {
             user.setLogin("Other user");
             filmorateManager.validateUser(user);
@@ -47,7 +55,13 @@ public class UserControllerTests {
 
     @DisplayName("Дата рождения не может быть в будущем")
     @Test
-    void userBirthdayCannotBeInTheFuture() {
+    void validateUser_throwValidationException_userBirthdayInFuture() {
+        User user = new User();
+        user.setName("Name");
+        user.setEmail("@Email");
+        user.setLogin("Login");
+        user.setBirthday(LocalDate.of(1980,12,28));
+        user.setId(filmorateManager.nextUserId());
         Assertions.assertThrows(ValidationException.class, () -> {
             user.setBirthday(LocalDate.now().plusDays(1));
             filmorateManager.validateUser(user);
@@ -56,7 +70,13 @@ public class UserControllerTests {
 
     @DisplayName("Используется логин вместо имени")
     @Test
-    void userLoginWillBeSsedIfNoNameIsSpecified() {
+    void validateUser_throwValidationException_userLoginInsteadOfName() {
+        User user = new User();
+        user.setName("Name");
+        user.setEmail("@Email");
+        user.setLogin("Login");
+        user.setBirthday(LocalDate.of(1980,12,28));
+        user.setId(filmorateManager.nextUserId());
         user.setName(null);
         filmorateManager.validateUser(user);
         Assertions.assertEquals(user.getLogin(),user.getName());

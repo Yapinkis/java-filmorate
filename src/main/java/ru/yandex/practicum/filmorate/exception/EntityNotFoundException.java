@@ -6,12 +6,11 @@ import ru.yandex.practicum.filmorate.exception.model.Code;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
-public class ValidationException extends RuntimeException {
-
+public class EntityNotFoundException extends RuntimeException {
     private final Code code;
 
-    public ValidationException(String message) {
+    public EntityNotFoundException(String message) {
         super(message);
-        this.code = Code.VALIDATION_ERROR;
+        this.code = Code.UPDATE_ERROR;
     }
 }
