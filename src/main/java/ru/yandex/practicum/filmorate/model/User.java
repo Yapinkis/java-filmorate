@@ -1,9 +1,10 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,14 +14,14 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Film {
+public class User {
     private Long id;
+    @NotNull @Email
+    private String email;
+    @NotNull @Pattern(regexp = "\\S+")
+    private String login;
     @NotNull
     private String name;
-    @Size(min = 1, max = 200)
-    private String description;
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate releaseDate;
-    @Positive
-    private Long duration;
+    @PastOrPresent @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate birthday;
 }
