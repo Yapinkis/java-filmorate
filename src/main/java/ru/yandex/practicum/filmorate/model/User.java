@@ -11,15 +11,13 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Film {
-
+public class User {
     private Long id;
     @NonNull
-    //Могу я в этом ТЗ оставить валидацию без аннотаций,а в следующей работе переписать...
+    private String email;
+    private String login;
     private String name;
-    private String description;
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate releaseDate;
-    private Long duration;
+    private LocalDate birthday;
 
 }
