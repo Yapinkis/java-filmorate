@@ -14,9 +14,17 @@ import java.util.Map;
 @RestControllerAdvice
 public class ManagerExceptionHandler {
 
+//    @ExceptionHandler
+//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+//    public ErrorResponse handleException(final Exception e) {
+//        log.warn("Ошибка", e);
+//        return new ErrorResponse(e.getMessage(),e);
+//    } Мы подобный обработчик писали в лекции,я так понимаю его основной смысл в том что отправить стэк-трейс
+//    и позже выдат исключение которое не возвращает код ошибки. У меня все исключения возвращают код ошибки, поэтому
+//    наверное в ErrorResponse нет смысла. Так же как и выводить стэк-трейс в моих исключениях или нет?
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<Map<String, Code>> handleValidationError(ValidationException exception) {
-        log.error("Возникла ошибка валидации данных: {}", exception.toString());
+        log.warn("Возникла ошибка валидации данных: {}", exception.toString());
         Map<String,Code> response = new HashMap<>();
         response.put(exception.getMessage(),exception.getCode());
         return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
@@ -24,18 +32,17 @@ public class ManagerExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<Map<String,Code>> handleUpdateException(EntityNotFoundException exception) {
-        log.error("Возникла ошибка при обновлении объекта: {}", exception.toString());
-        Map<String,Code> response = new HashMap<>();
-        response.put(exception.getMessage(),exception.getCode());
-        return new ResponseEntity<>(response,HttpStatus.CONFLICT);
-    }
-
-    @ExceptionHandler(ObjectFoundException.class)
-    public ResponseEntity<Map<String,Code>> handleObjectFoundException(ObjectFoundException exception) {
-        log.error("При попытке обратиться к объекту возникла ошибка: {}", exception.toString());
+        log.warn("Возникла ошибка при обновлении объекта: {}", exception.toString());
         Map<String,Code> response = new HashMap<>();
         response.put(exception.getMessage(),exception.getCode());
         return new ResponseEntity<>(response,HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(ServerException.class)
+    public ResponseEntity<Map<String,Code>> handleObjectFoundException(ServerException exception) {
+        log.warn("При попытке обратиться к объекту возникла ошибка: {}", exception.toString());
+        Map<String,Code> response = new HashMap<>();
+        response.put(exception.getMessage(),exception.getCode());
+        return new ResponseEntity<>(response,HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }
