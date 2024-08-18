@@ -52,16 +52,17 @@ public class FilmServiceImpl implements FilmService {
     public void addLike(Long usersId, Long filmsId) {
         User user = userStorage.get(usersId);
         Film film = filmStorage.get(filmsId);
-        if (film == null || user == null){
+        if (film == null || user == null) {
             throw new EntityNotFoundException("Ошибка, объект не обнаружен");
         }
         filmStorage.addLike(film,user);
     }
+
     @Override
     public void deleteLike(Long usersId, Long filmsId) {
         User user = userStorage.get(usersId);
         Film film = filmStorage.get(filmsId);
-        if (film == null || user == null){
+        if (film == null || user == null) {
             throw new EntityNotFoundException("Ошибка, объект не обнаружен");
         }
         filmStorage.removeLike(film,user);
