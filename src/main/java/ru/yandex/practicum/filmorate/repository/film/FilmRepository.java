@@ -7,14 +7,9 @@ import java.util.List;
 
 interface FilmRepository {
     public Film addFilm(Film film);
-
     Long generateId();
-
     Film get(Long id);
-
     void addLike(Film film, User userLike);
-
     void removeLike(Film film, User userLike);
-
     List<Film> getMostPopularFilms(int count);
 }

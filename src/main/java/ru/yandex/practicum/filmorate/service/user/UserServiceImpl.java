@@ -54,7 +54,7 @@ public class UserServiceImpl implements UserService {
         User userNewFriend = userStorage.get(userFriend);
         //Я решил в итоге оставить проверку на null и избавиться от Optional,
         // кажется в данном случае это действительно излишне
-        if (masterUser == null || userNewFriend == null) {
+        if (masterUser == null || userNewFriend == null){
             throw new EntityNotFoundException("Ошибка, объект не обнаружен");
         }
         userStorage.addFriend(masterUser,userNewFriend);
@@ -64,7 +64,7 @@ public class UserServiceImpl implements UserService {
     public void deleteFriend(Long user, Long userFriend) {
         User masterUser = userStorage.get(user);
         User userNewFriend = userStorage.get(userFriend);
-        if (masterUser == null || userNewFriend == null) {
+        if (masterUser == null || userNewFriend == null){
             throw new EntityNotFoundException("Ошибка, объект не обнаружен");
         }
         userStorage.deleteFriend(masterUser,userNewFriend);
@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService {
     public List<User> getMutualFriends(Long user, Long userFriend) {
         User masterUser = userStorage.get(user);
         User userNewFriend = userStorage.get(userFriend);
-        if (masterUser == null || userNewFriend == null) {
+        if (masterUser == null || userNewFriend == null){
             throw new EntityNotFoundException("Ошибка, объект не обнаружен");
         }
         return userStorage.getMutualFriends(masterUser, userNewFriend);
@@ -83,7 +83,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> getFriends(Long userId) {
         User user = userStorage.get(userId);
-        if (user == null) {
+        if (user == null){
             throw new EntityNotFoundException("Пользователь с ID " + userId + " не найден.");
         }
         return userStorage.getFriends(user);

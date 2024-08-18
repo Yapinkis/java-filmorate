@@ -22,7 +22,6 @@ public class ManagerExceptionHandler {
         response.put(exception.getMessage(),exception.getCode());
         return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
     }
-
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<Map<String,Code>> handleUpdateException(EntityNotFoundException exception) {
         log.error("Возникла ошибка при обновлении объекта: {}", exception.getMessage());
@@ -30,7 +29,6 @@ public class ManagerExceptionHandler {
         response.put(exception.getMessage(),exception.getCode());
         return new ResponseEntity<>(response,HttpStatus.NOT_FOUND);
     }
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleOtherException(Exception exception) {
         log.error("При попытке обратиться к объекту возникла ошибка: {}", exception.getMessage());

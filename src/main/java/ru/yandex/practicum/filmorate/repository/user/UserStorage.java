@@ -24,12 +24,10 @@ public class UserStorage implements UserRepository {
     public Long generateId() {
         return ++userId;
     }
-
     @Override
     public User get(Long id) {
         return users.get(id);
     }
-
     @Override
     public void addFriend(User user, User userFriend) {
         Set<Long> masterUserFriends = userFriends.computeIfAbsent(user.getId(),key -> new HashSet<>());
@@ -37,17 +35,12 @@ public class UserStorage implements UserRepository {
         Set<Long> userFriendFriends = userFriends.computeIfAbsent(userFriend.getId(), key -> new HashSet<>());
         userFriendFriends.add(user.getId());
     }
-
     @Override
     public void deleteFriend(User user, User userFriend) {
-        userFriends.computeIfPresent(user.getId(), (idOfUser, friends) -> {
-            friends.remove(userFriend.getId());
-            return friends.isEmpty() ? null : friends;
-        });
-        userFriends.computeIfPresent(userFriend.getId(), (idOfUserFriend, friends) -> {
-            friends.remove(user.getId());
-            return friends.isEmpty() ? null : friends;
-        });
+        userFriends.computeIfPresent(user.getId(), (idOfUser, friends) -> {friends.remove(userFriend.getId());
+            return friends.isEmpty() ? null : friends;});
+        userFriends.computeIfPresent(userFriend.getId(), (idOfUserFriend, friends) -> {friends.remove(user.getId());
+            return friends.isEmpty() ? null : friends;});
     }
 
     @Override
@@ -69,7 +62,6 @@ public class UserStorage implements UserRepository {
         }
         return friendsList.stream().map(users::get).collect(Collectors.toList());
     }
-
     public List<User> getUsers() {
         return new ArrayList<>(users.values());
     }
