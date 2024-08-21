@@ -11,6 +11,6 @@ public class EntityNotFoundException extends RuntimeException {
 
     public EntityNotFoundException(String message) {
         super(message);
-        this.code = Code.UPDATE_ERROR;
+        this.code = Code.OBJECT_ERROR;
     }
 }

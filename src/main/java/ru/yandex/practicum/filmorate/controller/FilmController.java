@@ -1,58 +1,57 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ObjectFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.FilmorateManager;
+import ru.yandex.practicum.filmorate.service.film.FilmServiceImpl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/films")
 public class FilmController {
-    private final FilmorateManager filmorateManager;
-
-    @Autowired
-    public FilmController(FilmorateManager filmorateManager) {
-        this.filmorateManager = filmorateManager;
-    }
-
-    private Map<Long,Film> films = new HashMap<>();
+    private final FilmServiceImpl filmServiceImpl;
 
     @PostMapping
-    public Film addFilm(@RequestBody Film film) {
-        if (!filmorateManager.validateFilm(film)) {
-            return null;
-        }
-        film.setId(filmorateManager.nextFilmId());
-        films.put(film.getId(), film);
+    public Film addFilm(@RequestBody @Valid Film film) {
+        log.info("Добавлен фильм ={}", film.getName());
+        filmServiceImpl.addFilm(film);
         return film;
-        //А тесты скорее всего не свалились из-за того,что я отлавливаю исключения assertThrows,
-        // которые у меня выбрасываются в validateFilm
     }
 
     @PutMapping
-    public Film updateFilm(@RequestBody Film film) {
-        Film updatedFilm = films.get(film.getId());
-        if (updatedFilm == null) {
-            throw new ObjectFoundException("Данный фильм отсутствует");
-        }
-        filmorateManager.validateUpdateFilm(updatedFilm);
-        updatedFilm.setName(film.getName());
-        updatedFilm.setDescription(film.getDescription());
-        updatedFilm.setDuration(film.getDuration());
-        updatedFilm.setReleaseDate(film.getReleaseDate());
-        films.put(updatedFilm.getId(), updatedFilm);
+    public Film updateFilm(@RequestBody @Valid Film film) {
+        log.info("Обновление фильма ={}", film.getName());
+        filmServiceImpl.updateFilm(film);
         return film;
     }
 
     @GetMapping
-    public ArrayList<Film> getFilms() {
-        return new ArrayList<>(films.values());
+    public List<Film> getFilms() {
+        log.info("Список всех фильмов");
+        return filmServiceImpl.getFilms();
     }
+
+    @PutMapping("/{id}/like/{userId}")
+    public void makeLike(@PathVariable Long id, @PathVariable Long userId) {
+        log.info("Пользователь с идентификатором={}, сьавит лайк фильму={}", userId, id);
+        filmServiceImpl.addLike(userId,id);
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public void deleteLike(@PathVariable Long id, @PathVariable Long userId) {
+        log.info("Пользователь с идентификатором={}, удаляет лайк фильму={}", userId, id);
+        filmServiceImpl.deleteLike(userId,id);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> getMostPopularFilms(@RequestParam(required = false, defaultValue = "10") int count) {
+        log.info("Количество самых популярных фильмов равно={}", count);
+        return filmServiceImpl.getMostPopularFilms(count);
+    }
+
 }
