@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS MPA (
+    RATING_ID INT PRIMARY KEY AUTO_INCREMENT,
+    RATING_MPA ENUM('G', 'PG', 'PG13', 'R', 'NC17'),
+    constraint MPA_PK primary key (RATING_ID)
+);
+
+
+
