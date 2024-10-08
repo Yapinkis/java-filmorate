@@ -4,14 +4,12 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
 
-public interface UserService {
+interface UserService {
     public User addUser(User user);
 
     public User updateUser(User user);
 
     public List<User> getUsers();
-
-    public User get(Long userId);
 
     public void addFriend(Long user, Long userFriend);
 

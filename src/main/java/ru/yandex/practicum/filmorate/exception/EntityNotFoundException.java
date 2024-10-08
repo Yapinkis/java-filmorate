@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.exception.model.Code;
 @EqualsAndHashCode(callSuper = false)
 @Data
 public class EntityNotFoundException extends RuntimeException {
+
     private final Code code;
 
     public EntityNotFoundException(String message) {
