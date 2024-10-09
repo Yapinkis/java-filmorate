@@ -36,28 +36,22 @@ public class UserController {
         return userServiceImpl.getUsers();
     }
 
-    @GetMapping("/{id}")
-    public User getUser(@PathVariable Long id) {
-        log.info("Найти пользователя с идентификатором={}", id);
-        return userServiceImpl.get(id);
-    }
-
     @PutMapping("/{id}/friends/{friendId}")
     public void addFriend(@PathVariable Long id, @PathVariable Long friendId) {
-        log.info("Добавить пользователя с идентификатором={}, в друзья к ={}", id, friendId);
+        log.info("Добавить пользователя с идентификатором={}, в друзья к ={}", friendId,id);
         userServiceImpl.addFriend(id,friendId);
-    }
-
-    @DeleteMapping("/{id}/friends/{friendId}")
-    public void deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {
-        log.info("Пользователя с идентификатором={}, удалён из друзей у пользователя ={}", id, friendId);
-        userServiceImpl.deleteFriend(id,friendId);
     }
 
     @GetMapping("/{id}/friends")
     public List<User> getFriends(@PathVariable Long id) {
         log.info("Список друзей пользователя с идентификатором ={}", id);
         return userServiceImpl.getFriends(id);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public void deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        log.info("Пользователя с идентификатором={}, удалён из друзей у пользователя ={}", id, friendId);
+        userServiceImpl.deleteFriend(id,friendId);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")

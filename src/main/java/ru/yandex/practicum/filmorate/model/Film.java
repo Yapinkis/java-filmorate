@@ -1,21 +1,25 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
+
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.yandex.practicum.filmorate.model.properties.Genre;
+import ru.yandex.practicum.filmorate.model.properties.MPA;
 
 import java.time.LocalDate;
+import java.util.LinkedHashSet;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Film {
     private Long id;
-    @NotNull @Size(min = 1)
+    @NotBlank
     private String name;
     @Size(min = 1, max = 200)
     private String description;
@@ -23,4 +27,7 @@ public class Film {
     private LocalDate releaseDate;
     @Positive
     private Long duration;
+    private LinkedHashSet<Long> likes;
+    private LinkedHashSet<Genre> genres;
+    private MPA mpa;
 }

@@ -8,8 +8,12 @@ import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.yandex.practicum.filmorate.model.properties.FriendshipStatus;
+
 
 import java.time.LocalDate;
+import java.util.Map;
+
 
 @Data
 @AllArgsConstructor
@@ -24,4 +28,5 @@ public class User {
     private String name;
     @PastOrPresent @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthday;
+    private Map<Long, FriendshipStatus> friendships;
 }
