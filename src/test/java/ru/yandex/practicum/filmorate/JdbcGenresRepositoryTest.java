@@ -11,7 +11,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.properties.Genre;
 import ru.yandex.practicum.filmorate.model.properties.MPA;
 import ru.yandex.practicum.filmorate.repository.film.JbdcGenreStorage;
-import ru.yandex.practicum.filmorate.repository.film.JdbsFilmStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

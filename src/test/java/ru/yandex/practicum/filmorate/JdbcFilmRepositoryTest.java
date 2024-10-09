@@ -1,9 +1,5 @@
 package ru.yandex.practicum.filmorate;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
 import static org.assertj.core.api.Assertions.assertThat;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.DisplayName;
@@ -17,9 +13,7 @@ import ru.yandex.practicum.filmorate.model.properties.MPA;
 import ru.yandex.practicum.filmorate.repository.film.JdbsFilmStorage;
 
 import java.time.LocalDate;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @JdbcTest
 @Import(JdbsFilmStorage.class)
