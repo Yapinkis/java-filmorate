@@ -42,6 +42,7 @@ public class JdbcFriendshipRepositoryTest {
         user.setBirthday(birthday);
         return user;
     }
+
     static List<User> getTestUsers() {
         return List.of(
                 createUser(USER_ID_ONE, "something@ya.ru", "login_One", "Test_Name_One",
@@ -54,59 +55,62 @@ public class JdbcFriendshipRepositoryTest {
                         LocalDate.of(1993, 2, 3))
         );
     }
+
     static User getUser(Long num) {
-        return getTestUsers().stream().filter(findUser -> findUser.getId() == num).
-                findFirst().orElseThrow(() -> new EntityNotFoundException("User не найден"));
+        return getTestUsers().stream().filter(findUser -> findUser.getId() == num).findFirst().orElseThrow(() -> new EntityNotFoundException("User не найден"));
     }
 
     @Test
     @DisplayName("Возвращает статус дружбы в соотношении: User1 имеет статус држубы с пользователем User2 - CONFIRMED при добавлении в друзья методом addFriend")
     public void addFriendMethod_should_return_friendship_status_for_User1_to_User2() {
-        User User1 = getUser(USER_ID_ONE);
-        User User2 = getUser(USER_ID_TWO);
-        jdbcFriendshipStorage.addFriend(User1,User2);// 1
-        User1.setFriendships(jdbcFriendshipStorage.setFriendship(USER_ID_ONE));// 2
+        User user1 = getUser(USER_ID_ONE);
+        User user2 = getUser(USER_ID_TWO);
+        jdbcFriendshipStorage.addFriend(user1,user2);// 1
+        user1.setFriendships(jdbcFriendshipStorage.setFriendship(USER_ID_ONE));// 2
         //Подобный код фактически проверяет действие двух моих методов.
         // 1 - добавляет в таблицу FRIENDSHIP
         // 2 - устанавливает дружбу
         // Можно ли так сделать?Или тестирование предполагает проверку каждого теста изолировано от другого?
         // Если изолировано, то мне получается нужно описать отдельный тестовый метод для обращения к БД,
         // допустим что бы узнать общее количество записей в таблице FRIENDSHIP?
-        assertThat(User1.getFriendships()).containsEntry(USER_ID_TWO, FriendshipStatus.CONFIRMED);
+        assertThat(user1.getFriendships()).containsEntry(USER_ID_TWO, FriendshipStatus.CONFIRMED);
     }
+
     @Test
     @DisplayName("Не будет возвращать статус држубы - CONFIRMED для пользователя User2 при добавлении User1 в друзья методом addFriend")
     public void addFriendMethod_will_not_return_friendship_status_User2_to_User1() {
-        User User1 = getUser(USER_ID_ONE);
-        User User2 = getUser(USER_ID_TWO);
-        jdbcFriendshipStorage.addFriend(User1,User2);
-        User1.setFriendships(jdbcFriendshipStorage.setFriendship(USER_ID_ONE));
-        assertThat(User2.getFriendships()).isNull();
+        User user1 = getUser(USER_ID_ONE);
+        User user2 = getUser(USER_ID_TWO);
+        jdbcFriendshipStorage.addFriend(user1,user2);
+        user1.setFriendships(jdbcFriendshipStorage.setFriendship(USER_ID_ONE));
+        assertThat(user2.getFriendships()).isNull();
     }
+
     @Test
     @DisplayName("Удаляет из друзей User1 пользователя UserN методом removeFriend")
     public void removeFriendMethod_should_remove_friendship_for_User() {
-        User User1 = getUser(USER_ID_ONE);
-        User User2 = getUser(USER_ID_TWO);
-        User User3 = getUser(USER_ID_THREE);
-        //log.info("Добавление User1 друзей {} и {}",User2.getName(), User3.getName());
+        User user1 = getUser(USER_ID_ONE);
+        User user2 = getUser(USER_ID_TWO);
+        User user3 = getUser(USER_ID_THREE);
+        //log.info("Добавление user1 друзей {} и {}",user2.getName(), user3.getName());
         //Добавлять логи в тесты наверное излишне
-        jdbcFriendshipStorage.addFriend(User1,User2);
-        jdbcFriendshipStorage.addFriend(User1,User3);
-        User1.setFriendships(jdbcFriendshipStorage.setFriendship(USER_ID_ONE));
-        Map<Long,FriendshipStatus> beforeRemove = User1.getFriendships();
+        jdbcFriendshipStorage.addFriend(user1,user2);
+        jdbcFriendshipStorage.addFriend(user1,user3);
+        user1.setFriendships(jdbcFriendshipStorage.setFriendship(USER_ID_ONE));
+        Map<Long,FriendshipStatus> beforeRemove = user1.getFriendships();
 
-        jdbcFriendshipStorage.removeFriend(User1,User2);
-        User1.setFriendships(jdbcFriendshipStorage.setFriendship(USER_ID_ONE));
-        Map<Long,FriendshipStatus> afterRemove = User1.getFriendships();
+        jdbcFriendshipStorage.removeFriend(user1,user2);
+        user1.setFriendships(jdbcFriendshipStorage.setFriendship(USER_ID_ONE));
+        Map<Long,FriendshipStatus> afterRemove = user1.getFriendships();
 
         assertThat(beforeRemove).isNotEqualTo(afterRemove);
     }
+
     @Test
     @DisplayName("Возвращает список общих друзей")
     public void getCommonFriendsMethod_should_return_common_friends_List() {
-        User User1 = getUser(USER_ID_ONE);
-        User User2 = getUser(USER_ID_TWO);
+        User user1 = getUser(USER_ID_ONE);
+        User user2 = getUser(USER_ID_TWO);
         User commonFriend1 = getUser(USER_ID_THREE);
         User commonFriend2 = getUser(USER_ID_FOUR);
 
@@ -114,12 +118,12 @@ public class JdbcFriendshipRepositoryTest {
         commonFriends.add(commonFriend1.getId());
         commonFriends.add(commonFriend2.getId());
 
-        jdbcFriendshipStorage.addFriend(User1,User2);
-        jdbcFriendshipStorage.addFriend(User1,commonFriend1);
-        jdbcFriendshipStorage.addFriend(User1,commonFriend2);
-        jdbcFriendshipStorage.addFriend(User2,User1);
-        jdbcFriendshipStorage.addFriend(User2,commonFriend1);
-        jdbcFriendshipStorage.addFriend(User2,commonFriend2);
+        jdbcFriendshipStorage.addFriend(user1,user2);
+        jdbcFriendshipStorage.addFriend(user1,commonFriend1);
+        jdbcFriendshipStorage.addFriend(user1,commonFriend2);
+        jdbcFriendshipStorage.addFriend(user2,user1);
+        jdbcFriendshipStorage.addFriend(user2,commonFriend1);
+        jdbcFriendshipStorage.addFriend(user2,commonFriend2);
 
         List<Long> commonFriendsFromDB = jdbcFriendshipStorage.getCommonFriends(USER_ID_ONE,USER_ID_TWO);
         assertThat(commonFriends).usingRecursiveComparison().isEqualTo(commonFriendsFromDB);

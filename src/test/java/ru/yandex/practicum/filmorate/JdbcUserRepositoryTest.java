@@ -85,17 +85,16 @@ public class JdbcUserRepositoryTest {
     @Test
     @DisplayName("Возвращает список User с значением их Id")
     public void getUsersMethod_should_return_Users_List_with_test_Id() {
-        List<Long> Users = jdbcUserStorage.getAll();
+        List<Long> users = jdbcUserStorage.getAll();
         List<Long> fromTestMethod = getTestUsers().stream().map(User::getId).toList();
-        assertThat(Users).usingRecursiveComparison().isEqualTo(fromTestMethod);
+        assertThat(users).usingRecursiveComparison().isEqualTo(fromTestMethod);
     }
 
     @Test
     @DisplayName("Возвращает экземпляр User по указанному Id")
     public void getMethod_should_return_User_with_test_Id() {
         User user = jdbcUserStorage.get(USER_ID_THREE);
-        User fromTestMethod = getTestUsers().stream().filter(findUser -> findUser.getId() == USER_ID_THREE).
-                findFirst().orElseThrow(() -> new EntityNotFoundException("User не найден"));
+        User fromTestMethod = getTestUsers().stream().filter(findUser -> findUser.getId() == USER_ID_THREE).findFirst().orElseThrow(() -> new EntityNotFoundException("User не найден"));
         assertThat(user).usingRecursiveComparison().isEqualTo(fromTestMethod);
     }
 }

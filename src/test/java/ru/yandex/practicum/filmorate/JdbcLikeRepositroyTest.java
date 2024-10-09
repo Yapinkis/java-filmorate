@@ -76,10 +76,11 @@ public class JdbcLikeRepositroyTest {
                 createFilm(FILM_ID_THREE,"Three_Film","Three_Description",130L,
                         LocalDate.of(2024,1,22),new MPA(FILM_ID_THREE, "PG-13")));
     }
+
     static User getUser(Long num) {
-        return getTestUsers().stream().filter(findUser -> findUser.getId() == num).
-                findFirst().orElseThrow(() -> new EntityNotFoundException("User не найден"));
+        return getTestUsers().stream().filter(findUser -> findUser.getId() == num).findFirst().orElseThrow(() -> new EntityNotFoundException("User не найден"));
     }
+
     static Film getFilm(Long num) {
         return getTestFilms().stream().filter(film -> film.getId() == num).findFirst().orElseThrow(()
                 -> new EntityNotFoundException("Film не найден"));

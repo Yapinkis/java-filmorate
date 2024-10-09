@@ -52,8 +52,8 @@ public class JdbcMPARepositoryTest {
     @DisplayName("Возвращает эксземпляр MPA_рейтинга для объекта Film")
     public void getAllRatingsMethod_should_return_List_of_all_MPA() {
         List<MPA> fromFilmsMPAs = getTestFilms().stream().map(Film::getMpa).toList();
-        List<MPA> MPAs = new ArrayList<>(jbdcMpaStorage.getAllMpaRatings());
-        assertThat(MPAs).usingRecursiveComparison().isEqualTo(fromFilmsMPAs);
+        List<MPA> mpas = new ArrayList<>(jbdcMpaStorage.getAllMpaRatings());
+        assertThat(mpas).usingRecursiveComparison().isEqualTo(fromFilmsMPAs);
 
     }
 }
