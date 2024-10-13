@@ -11,7 +11,7 @@ public interface FriendShipRepository {
 
     void removeFriend(User masterUser, User userFriend);
 
-    Map<Long, FriendshipStatus> setFriendship(Long user);
+    Map<Long, FriendshipStatus> getFriendshipStatus(Long user);
 
-    List<Long> getCommonFriends(Long masterUser, Long userFriend);
+    List<User> getCommonFriends(Long masterUser, Long userFriend);
 }

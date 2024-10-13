@@ -27,7 +27,7 @@ public class UserServiceImpl implements UserService {
     public User addUser(User user) {
         CommonHelper.validateUser(user);
         User created = jdbcUserStorage.addUser(user);
-        created.setFriendships(jdbcFriendshipStorage.setFriendship(created.getId()));
+        created.setFriendships(jdbcFriendshipStorage.getFriendshipStatus(created.getId()));
         return created;
     }
 
@@ -35,18 +35,13 @@ public class UserServiceImpl implements UserService {
     public User updateUser(User user) {
         CommonHelper.validateUser(user);
         User userUpdate = jdbcUserStorage.update(user);
-        userUpdate.setFriendships(jdbcFriendshipStorage.setFriendship(userUpdate.getId()));
+        userUpdate.setFriendships(jdbcFriendshipStorage.getFriendshipStatus(userUpdate.getId()));
         return userUpdate;
     }
 
     @Override
     public List<User> getUsers() {
-        List<Long> usersId = new ArrayList<>(jdbcUserStorage.getAll());
-        List<User> users = new ArrayList<>();
-        for (Long id : usersId) {
-            users.add(jdbcUserStorage.get(id));
-        }
-        return users;
+        return new ArrayList<>(jdbcUserStorage.getAll());
     }
 
     @Override
@@ -57,7 +52,9 @@ public class UserServiceImpl implements UserService {
         User userNewFriend = jdbcUserStorage.get(userFriend);
         checkCondition(masterUser,userNewFriend);
         jdbcFriendshipStorage.addFriend(masterUser,userNewFriend);
-        masterUser.setFriendships(jdbcFriendshipStorage.setFriendship(user));
+        // masterUser.setFriendships(jdbcFriendshipStorage.getFriendshipStatus(user));
+        // Да эта строк как в addFriend так и в deleteFriend лишние т.к. это было бы актуально для установки статуса
+        // дружбы для конкретного объекта, а не для выболнения операции добавления\удаления из друзей
     }
 
     @Override
@@ -68,23 +65,13 @@ public class UserServiceImpl implements UserService {
         User userNewFriend = jdbcUserStorage.get(userFriend);
         checkCondition(masterUser,userNewFriend);
         jdbcFriendshipStorage.removeFriend(masterUser,userNewFriend);
-        masterUser.setFriendships(jdbcFriendshipStorage.setFriendship(user));
     }
 
     @Override
     public List<User> getMutualFriends(Long user, Long userFriend) {
         CommonHelper.validateUserId(user);
         CommonHelper.validateUserId(userFriend);
-        List<Long> friendIds = new ArrayList<>(jdbcFriendshipStorage.getCommonFriends(user, userFriend));
-        List<User> users = new ArrayList<>();
-        for (Long id : friendIds) {
-            User newUser = jdbcUserStorage.get(id);
-            newUser.setFriendships(jdbcFriendshipStorage.setFriendship(id));
-            //По сути эта строчка не имеет особого смысла, т.к. тесты создают новых пользователей
-            //и у общего друга список друзей пуст
-            users.add(newUser);
-        }
-        return users;
+        return new ArrayList<>(jdbcFriendshipStorage.getCommonFriends(user, userFriend));
     }
 
     @Override
@@ -92,7 +79,7 @@ public class UserServiceImpl implements UserService {
         CommonHelper.validateUserId(userId);
         List<User> userFriends = new ArrayList<>();
         User user = jdbcUserStorage.get(userId);
-        user.setFriendships(jdbcFriendshipStorage.setFriendship(userId));
+        user.setFriendships(jdbcFriendshipStorage.getFriendshipStatus(userId));
         for (Map.Entry<Long,FriendshipStatus> entry : user.getFriendships().entrySet()) {
             Long userFriendId = entry.getKey();
             User userFriend = jdbcUserStorage.get(userFriendId);

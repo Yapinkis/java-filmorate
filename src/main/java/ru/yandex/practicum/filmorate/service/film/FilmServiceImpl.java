@@ -13,9 +13,7 @@ import ru.yandex.practicum.filmorate.repository.user.JbdcLikeStorage;
 import ru.yandex.practicum.filmorate.repository.user.JdbcUserStorage;
 import ru.yandex.practicum.filmorate.utility.CommonHelper;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -50,13 +48,7 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public List<Film> getFilms() {
-        ArrayList<Long> filmsIds = new ArrayList<>(jdbsFilmStorage.getAll());
-        ArrayList<Film> films = new ArrayList<>();
-        for (Long id : filmsIds) {
-            Film film = jdbsFilmStorage.get(id);
-            films.add(film);
-        }
-        return films;
+        return new ArrayList<>(jdbsFilmStorage.getAll());
     }
 
     @Override
@@ -82,8 +74,6 @@ public class FilmServiceImpl implements FilmService {
         CommonHelper.checkCondition(film,user);
         CommonHelper.validateFilm(film);
         CommonHelper.validateUser(user);
-        film.setGenres(jbdcGenreStorage.getGenre(film.getId()));
-        film.setMpa(jbdcMpaStorage.getMpaRating(film.getMpa().getId()));
         jbdcLikeStorage.removeLike(film,user);
     }
 
@@ -103,7 +93,7 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public LinkedHashSet<Genre> getGenres() {
+    public Set<Genre> getGenres() {
         return new LinkedHashSet<>(jbdcGenreStorage.getAllGenres());
     }
 

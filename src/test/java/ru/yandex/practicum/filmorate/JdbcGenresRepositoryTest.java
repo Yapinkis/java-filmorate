@@ -11,19 +11,17 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.properties.Genre;
 import ru.yandex.practicum.filmorate.model.properties.MPA;
 import ru.yandex.practicum.filmorate.repository.film.JbdcGenreStorage;
+import ru.yandex.practicum.filmorate.utility.CommonHelper;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @JdbcTest
-@Import(JbdcGenreStorage.class)
+@Import({JbdcGenreStorage.class, CommonHelper.class})
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @DisplayName("JbdcGenreStorage")
 public class JdbcGenresRepositoryTest {
@@ -69,7 +67,7 @@ public class JdbcGenresRepositoryTest {
     public void createGenreMethod_should_create_values_for_FILM_GENRE() {
         Film film = getFilm(FILM_ID_THREE);
         jbdcGenreStorage.createGenre(film);
-        LinkedHashSet<Genre> fromGenre = jbdcGenreStorage.getGenre(film.getId());
+        HashSet<Genre> fromGenre = jbdcGenreStorage.getGenre(film.getId());
         assertThat(film.getGenres()).isEqualTo(fromGenre);
     }
 
@@ -83,12 +81,9 @@ public class JdbcGenresRepositoryTest {
         jbdcGenreStorage.createGenre(film);
         film.getGenres().add(new Genre(4L,"Триллер"));
         jbdcGenreStorage.createGenre(film);
-        LinkedHashSet<Genre> fromGenre = jbdcGenreStorage.getGenre(film.getId());
-        LinkedHashSet<Long> genresId = film.getGenres().stream()
-                .map(Genre::getId)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-        assertThat(fromGenre.stream().map(Genre::getId).collect(Collectors.toList()))
-                .isEqualTo(new ArrayList<>(genresId));
+        HashSet<Genre> fromGenre = jbdcGenreStorage.getGenre(film.getId());
+        assertThat(fromGenre.stream().map(Genre::getId).collect(Collectors.toSet()))
+                .isEqualTo(film.getGenres().stream().map(Genre::getId).collect(Collectors.toSet()));
     }
 
     @Test

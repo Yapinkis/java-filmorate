@@ -1,7 +1,11 @@
 package ru.yandex.practicum.filmorate.utility;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -10,13 +14,14 @@ import ru.yandex.practicum.filmorate.model.properties.Genre;
 
 import java.time.LocalDate;
 
+@Component
+@RequiredArgsConstructor
 public class CommonHelper {
+    private final NamedParameterJdbcOperations jdbc;
     @Getter @Setter
     private static Long usersCount = 0L;
     @Getter @Setter
     private static Long filmsCount = 0L;
-    public static final int minGenreCount = 1;
-    public static final int maxGenreCount = 6;
 
     public static void validateFilm(Film film) {
         final LocalDate dataFlag = LocalDate.of(1895,12,28);
@@ -44,18 +49,6 @@ public class CommonHelper {
         }
     }
 
-    public static void validateFilmId(Long id) {
-        if (id > filmsCount) {
-            throw new EntityNotFoundException("Film Id = " + id + " больше максимального значения в БД = " + filmsCount);
-        }
-    }
-
-    public static void checkGenreId(Genre genre) {
-        if (genre.getId() > maxGenreCount || genre.getId() < minGenreCount) {
-            throw new ValidationException("Введён непостуимый идентификатор жанра: " + genre.getId());
-        }
-    }
-
     public static void checkRow(int count) {
         if (count == 0) {
             throw new EntityNotFoundException("Фильм не найден");
@@ -63,15 +56,48 @@ public class CommonHelper {
     }
 
     public static void checkCondition(Film film, User user) {
-        if (film == null || user == null) {
-            throw new EntityNotFoundException("Ошибка, объект не обнаружен");
+        if (film == null) {
+            throw new EntityNotFoundException("При попытке обратиться к объету Film возникла ошибка, объект не обнаружен");
+        }
+        if (user == null) {
+            throw new EntityNotFoundException("При попытке обратиться к объету User возникла ошибка, объект не обнаружен");
         }
     }
 
     public static void checkCondition(User user, User userFriend) {
-        if (user == null || userFriend == null) {
-            throw new EntityNotFoundException("Ошибка, объект не обнаружен");
+        if (user == null) {
+            throw new EntityNotFoundException("При попытке обратиться к объету User возникла ошибка, объект не обнаружен");
+        }
+        if (userFriend == null) {
+            throw new EntityNotFoundException("При попытке обратиться к объету UserFriend возникла ошибка, объект не обнаружен");
         }
     }
+
+    public void checkGenreId(Genre genre) {
+        if (genre.getId() > getMaxGenreValue() || genre.getId() < getMinGenreValue()) {
+            throw new ValidationException("Введён непостуимый идентификатор жанра: " + genre.getId());
+        }
+    }
+
+    public int getMinMpaTableValue() {
+        String minMpaValue = "SELECT MIN(RATING_ID) FROM MPA";
+        return jdbc.queryForObject(minMpaValue, new MapSqlParameterSource(), Integer.class);
+    }
+
+    public int getMaxMpaTableValue() {
+        String minMpaValue = "SELECT MAX(RATING_ID) FROM MPA";
+        return jdbc.queryForObject(minMpaValue, new MapSqlParameterSource(), Integer.class);
+    }
+
+    public int getMinGenreValue() {
+        String minGenreValue = "SELECT MIN(GENRE_ID) FROM GENRE";
+        return jdbc.queryForObject(minGenreValue, new MapSqlParameterSource(), Integer.class);
+    }
+
+    public int getMaxGenreValue() {
+        String maxGenreValue = "SELECT MAX(GENRE_ID) FROM GENRE";
+        return jdbc.queryForObject(maxGenreValue, new MapSqlParameterSource(), Integer.class);
+    }
+
 
 }

@@ -4,8 +4,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.properties.Genre;
 import ru.yandex.practicum.filmorate.model.properties.MPA;
 
-import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 interface FilmService {
     public Film addFilm(Film film);
@@ -22,7 +22,7 @@ interface FilmService {
 
     public List<Film> getMostPopularFilms(int count);
 
-    public LinkedHashSet<Genre> getGenres();
+    public Set<Genre> getGenres();
 
     public Genre getGenre(Long genreId);
 

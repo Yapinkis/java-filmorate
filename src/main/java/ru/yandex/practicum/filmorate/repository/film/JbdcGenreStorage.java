@@ -7,11 +7,10 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.properties.Genre;
+import ru.yandex.practicum.filmorate.utility.CommonHelper;
 
 
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static ru.yandex.practicum.filmorate.utility.CommonHelper.*;
 
@@ -21,26 +20,30 @@ import static ru.yandex.practicum.filmorate.utility.CommonHelper.*;
 public class JbdcGenreStorage implements GenreRepository {
 
     private final NamedParameterJdbcOperations jdbc;
+    private final CommonHelper commonHelper;
+
 
     @Override
     public void createGenre(Film film) {
         if (film.getGenres() == null) {
-            //В случае если у нас нет жанра,а это допустимо по условию ТЗ, то в таблице FILM_GENRE у нас будет
-            //Id-фильма со значением null
             MapSqlParameterSource genreParams = new MapSqlParameterSource();
             genreParams.addValue("filmId", film.getId());
             genreParams.addValue("genreId", null);
             jdbc.update("INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) VALUES (:filmId, :genreId)", genreParams);
         } else {
+            String sql = "INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) VALUES (:filmId, :genreId)";
+            List<MapSqlParameterSource> batchParams = new ArrayList<>();
             for (Genre genre : film.getGenres()) {
-                checkGenreId(genre);
+                commonHelper.checkGenreId(genre);
                 MapSqlParameterSource genreParams = new MapSqlParameterSource();
                 genreParams.addValue("filmId", film.getId());
                 genreParams.addValue("genreId", genre.getId());
-                jdbc.update("INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) VALUES (:filmId, :genreId)", genreParams);
+                batchParams.add(genreParams);
             }
+            jdbc.batchUpdate(sql, batchParams.toArray(new MapSqlParameterSource[0]));
         }
     }
+
 
     @Override
     public void deleteGenre(Film film) {
@@ -51,17 +54,20 @@ public class JbdcGenreStorage implements GenreRepository {
     }
 
     @Override
-    public LinkedHashSet<Genre> getGenre(Long id) {
+    public HashSet<Genre> getGenre(Long id) {
         String sql = "SELECT g.GENRE_ID, g.GENRE_NAME FROM GENRE g " +
                 "JOIN FILM_GENRE fg ON g.GENRE_ID = fg.GENRE_ID " +
-                "WHERE fg.FILM_ID = :filmId";
+                "WHERE fg.FILM_ID = :filmId " +
+                "ORDER BY g.GENRE_ID ASC";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("filmId", id);
         List<Genre> genres = jdbc.query(sql, params, (rs, rowNum) -> {
             return new Genre(rs.getLong("GENRE_ID"), rs.getString("GENRE_NAME"));
         });
         return new LinkedHashSet<>(genres);
-        //насколько правильно здесь использовать LinkedHashSet если первичное добавление в список идёт через List?
+       // Да,для тестов в Postman важен порядок вывода жанров,в частности тест Film create several genres выдаёт ошибку
+        // Test film 'genres' field | AssertionError: "genres" field must be %{requestGenres}: expected [ 5, 3 ] to deeply equal [ 3, 5 ]
+
     }
 
     @Override

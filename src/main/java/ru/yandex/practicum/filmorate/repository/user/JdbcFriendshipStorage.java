@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.properties.FriendshipStatus;
 
+import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,8 @@ public class JdbcFriendshipStorage implements FriendShipRepository {
     }
 
     @Override
-    public Map<Long, FriendshipStatus> setFriendship(Long user) {
+    public Map<Long, FriendshipStatus> getFriendshipStatus(Long user) {
+        //Да, тут ошибка в названии вышла...
         MapSqlParameterSource params = new MapSqlParameterSource();
         String sqlQuery = "SELECT * FROM FRIENDSHIP WHERE STATUS_USER_ID_1 = :statusUserId";
         params.addValue("statusUserId", user);
@@ -54,18 +56,27 @@ public class JdbcFriendshipStorage implements FriendShipRepository {
     }
 
     @Override
-    public List<Long> getCommonFriends(Long masterUser, Long userFriend) {
+    public List<User> getCommonFriends(Long masterUser, Long userFriend) {
         MapSqlParameterSource params = new MapSqlParameterSource();
-        String sqlQuery = "SELECT f1.STATUS_USER_ID_2 AS common_friend_id "
-                + "FROM FRIENDSHIP f1 "
-                + "JOIN FRIENDSHIP f2 ON f1.STATUS_USER_ID_2 = f2.STATUS_USER_ID_2 "
-                + "WHERE f1.STATUS_USER_ID_1 = :userId1 "
-                + "AND f2.STATUS_USER_ID_1 = :userId2 "
-                + "AND f1.STATUS_REQUEST = 'CONFIRMED' "
-                + "AND f2.STATUS_REQUEST = 'CONFIRMED'";
+        String sqlQuery = "SELECT u.USER_ID, u.USER_NAME, u.USER_EMAIL, u.USER_LOGIN, u.USER_BIRTHDAY " +
+                "FROM FRIENDSHIP f1 " +
+                "JOIN FRIENDSHIP f2 ON f1.STATUS_USER_ID_2 = f2.STATUS_USER_ID_2 " +
+                "JOIN USERS u ON f1.STATUS_USER_ID_2 = u.USER_ID " +
+                "WHERE f1.STATUS_USER_ID_1 = :userId1 " +
+                "AND f2.STATUS_USER_ID_1 = :userId2 " +
+                "AND f1.STATUS_REQUEST = 'CONFIRMED' " +
+                "AND f2.STATUS_REQUEST = 'CONFIRMED'";
         params.addValue("userId1", masterUser);
         params.addValue("userId2", userFriend);
-        return jdbc.queryForList(sqlQuery, params, Long.class);
+        return jdbc.query(sqlQuery, params, (rs, rowNum) -> {
+            User user = new User();
+            user.setId(rs.getLong("USER_ID"));
+            user.setName(rs.getString("USER_NAME"));
+            user.setEmail(rs.getString("USER_EMAIL"));
+            user.setLogin(rs.getString("USER_LOGIN"));
+            user.setBirthday(rs.getObject("USER_BIRTHDAY", LocalDate.class));
+            return user;
+        });
     }
 
 }

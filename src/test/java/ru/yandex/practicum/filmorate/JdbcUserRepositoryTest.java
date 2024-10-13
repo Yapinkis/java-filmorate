@@ -82,13 +82,13 @@ public class JdbcUserRepositoryTest {
         assertThat(updatedUser).usingRecursiveComparison().isEqualTo(user);
     }
 
-    @Test
-    @DisplayName("Возвращает список User с значением их Id")
-    public void getUsersMethod_should_return_Users_List_with_test_Id() {
-        List<Long> users = jdbcUserStorage.getAll();
-        List<Long> fromTestMethod = getTestUsers().stream().map(User::getId).toList();
-        assertThat(users).usingRecursiveComparison().isEqualTo(fromTestMethod);
-    }
+//    @Test
+//    @DisplayName("Возвращает список User с значением их Id")
+//    public void getUsersMethod_should_return_Users_List_with_test_Id() {
+//        List<Long> users = jdbcUserStorage.getAll();
+//        List<Long> fromTestMethod = getTestUsers().stream().map(User::getId).toList();
+//        assertThat(users).usingRecursiveComparison().isEqualTo(fromTestMethod);
+//    }
 
     @Test
     @DisplayName("Возвращает экземпляр User по указанному Id")

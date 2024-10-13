@@ -6,7 +6,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.util.List;
 import java.util.Set;
 
-public interface LikeRepository {
+interface LikeRepository {
     void addLike(Film film, User userLike);
 
     void removeLike(Film film, User userLike);

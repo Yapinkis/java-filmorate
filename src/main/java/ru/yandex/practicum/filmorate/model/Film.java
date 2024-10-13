@@ -12,7 +12,7 @@ import ru.yandex.practicum.filmorate.model.properties.Genre;
 import ru.yandex.practicum.filmorate.model.properties.MPA;
 
 import java.time.LocalDate;
-import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -27,7 +27,7 @@ public class Film {
     private LocalDate releaseDate;
     @Positive
     private Long duration;
-    private LinkedHashSet<Long> likes;
-    private LinkedHashSet<Genre> genres;
+    private Set<Long> likes;
+    private Set<Genre> genres;
     private MPA mpa;
 }

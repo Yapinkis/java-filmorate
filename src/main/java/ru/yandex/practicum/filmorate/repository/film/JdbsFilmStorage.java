@@ -7,7 +7,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.properties.MPA;
+import ru.yandex.practicum.filmorate.model.properties.FilmRowMapper;
 import ru.yandex.practicum.filmorate.utility.CommonHelper;
 
 import java.util.HashMap;
@@ -25,13 +25,8 @@ public class JdbsFilmStorage implements FilmRepository {
         String sqlQuery = "INSERT INTO FILM (FILM_NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATING_ID) " +
                 "VALUES (:name, :description, :releaseDate, :duration, :ratingId)";
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
-        MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("name", film.getName());
-        params.addValue("description", film.getDescription());
-        params.addValue("releaseDate", film.getReleaseDate());
-        params.addValue("duration", film.getDuration());
-        params.addValue("ratingId",film.getMpa().getId());
-        jdbc.update(sqlQuery, params, keyHolder, new String[] {"Film_ID"});
+        MapSqlParameterSource params = getFilmParams(film); // Используем общий метод для параметров
+        jdbc.update(sqlQuery, params, keyHolder, new String[] {"FILM_ID"});
         Long generatedId = Objects.requireNonNull(keyHolder.getKey()).longValue();
         film.setId(generatedId);
         CommonHelper.setFilmsCount(getMaxFilmCount());
@@ -42,15 +37,10 @@ public class JdbsFilmStorage implements FilmRepository {
     @Override
     public Film update(Film film) {
         String updateQuery = "UPDATE FILM SET FILM_NAME = :name, DESCRIPTION = :description, " +
-                "RELEASE_DATE = :releaseDate, DURATION = :duration, RATING_ID = :rating " +
+                "RELEASE_DATE = :releaseDate, DURATION = :duration, RATING_ID = :ratingId " +
                 "WHERE FILM_ID = :id";
-        MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("id", film.getId());
-        params.addValue("name", film.getName());
-        params.addValue("description", film.getDescription());
-        params.addValue("releaseDate", film.getReleaseDate());
-        params.addValue("duration", film.getDuration());
-        params.addValue("rating", film.getMpa().getId());
+        MapSqlParameterSource params = getFilmParams(film); // Используем общий метод для параметров
+        params.addValue("id", film.getId()); // Добавляем ID фильма
         int rowsAffected = jdbc.update(updateQuery, params);
         CommonHelper.checkRow(rowsAffected);
         log.info("Обновлен фильм ={}", film.getId());
@@ -58,32 +48,24 @@ public class JdbsFilmStorage implements FilmRepository {
     }
 
     @Override
-    public List<Long> getAll() {
-        String sqlFilms = "SELECT FILM_ID FROM FILM ORDER BY FILM_ID";
-        MapSqlParameterSource params = new MapSqlParameterSource();
-        return jdbc.queryForList(sqlFilms,params,Long.class);
+    public List<Film> getAll() {
+        String getFilms = "SELECT FILM_ID, FILM_NAME, DESCRIPTION, RELEASE_DATE, DURATION, " +
+                "RATING_ID " +
+                "FROM FILM";
+        return jdbc.query(getFilms, new FilmRowMapper());
     }
 
     @Override
     public Film get(Long id) {
+        // Да, для прохождения тестов нужно добавлять жанры, но у меня эта логика реализована в JbdcGenreStorage
+        // а само добавление жанра идёт в FilmServiceImpl
         String sqlQuery = "SELECT f.FILM_ID, f.FILM_NAME, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, " +
                 "f.RATING_ID " +
                 "FROM FILM f " +
                 "WHERE f.FILM_ID = :id";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);
-        return jdbc.queryForObject(sqlQuery, params, (rs, rowNum) -> {
-            Film film = new Film();
-            film.setId(rs.getLong("FILM_ID"));
-            film.setName(rs.getString("FILM_NAME"));
-            film.setDescription(rs.getString("DESCRIPTION"));
-            film.setReleaseDate(rs.getDate("RELEASE_DATE").toLocalDate());
-            film.setDuration(rs.getLong("DURATION"));
-            MPA mpa = new MPA();
-            mpa.setId(rs.getLong("RATING_ID"));
-            film.setMpa(mpa);
-            return film;
-        });
+        return jdbc.queryForObject(sqlQuery, params, new FilmRowMapper());
     }
 
     public Long getMaxFilmCount() {
@@ -91,6 +73,15 @@ public class JdbsFilmStorage implements FilmRepository {
         Long number = jdbc.queryForObject(sqlQuery, new HashMap<>(), Long.class);
         return number == null ? 0 : number;
     }
-    //аналогично User
+
+    private MapSqlParameterSource getFilmParams(Film film) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("name", film.getName());
+        params.addValue("description", film.getDescription());
+        params.addValue("releaseDate", film.getReleaseDate());
+        params.addValue("duration", film.getDuration());
+        params.addValue("ratingId", film.getMpa().getId());
+        return params;
+    }
 
 }
