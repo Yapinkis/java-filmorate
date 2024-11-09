@@ -4,20 +4,12 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
 
-
 interface UserRepository {
+    User addUser(User user);
 
-    public User addUser(User user);
-
-    Long generateId();
+    User update(User user);
 
     User get(Long id);
 
-    void addFriend(User user, User userFriend);
-
-    void deleteFriend(User user, User userFriend);
-
-    List<User> getMutualFriends(User user, User userFriend);
-
-    List<User> getFriends(User user);
+    List<User> getAll();
 }

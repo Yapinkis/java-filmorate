@@ -2,82 +2,104 @@ package ru.yandex.practicum.filmorate.service.film;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.repository.film.FilmStorage;
-import ru.yandex.practicum.filmorate.repository.user.UserStorage;
+import ru.yandex.practicum.filmorate.model.properties.Genre;
+import ru.yandex.practicum.filmorate.model.properties.MPA;
+import ru.yandex.practicum.filmorate.repository.film.JbdcGenreStorage;
+import ru.yandex.practicum.filmorate.repository.film.JbdcMpaStorage;
+import ru.yandex.practicum.filmorate.repository.film.JdbsFilmStorage;
+import ru.yandex.practicum.filmorate.repository.user.JbdcLikeStorage;
+import ru.yandex.practicum.filmorate.repository.user.JdbcUserStorage;
+import ru.yandex.practicum.filmorate.utility.CommonHelper;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 public class FilmServiceImpl implements FilmService {
 
-    private final UserStorage userStorage;
-    private final FilmStorage filmStorage;
+    private final JdbsFilmStorage jdbsFilmStorage;
+    private final JdbcUserStorage jdbcUserStorage;
+    private final JbdcGenreStorage jbdcGenreStorage;
+    private final JbdcMpaStorage jbdcMpaStorage;
+    private final JbdcLikeStorage jbdcLikeStorage;
 
     @Override
     public Film addFilm(Film film) {
-        validate(film);
-        film.setId(filmStorage.generateId());
-        filmStorage.addFilm(film);
-        return film;
+        CommonHelper.validateFilm(film);
+        Film created = jdbsFilmStorage.addFilm(film);
+        jbdcGenreStorage.createGenre(created);
+        created.setGenres(jbdcGenreStorage.getGenre(film.getId()));
+        created.setMpa(jbdcMpaStorage.getMpaRating(film.getMpa().getId()));
+        return created;
     }
 
     @Override
     public Film updateFilm(Film film) {
-        validate(film);
-        Film updatedFilm = filmStorage.get(film.getId());
-        if (updatedFilm == null) {
-            throw new EntityNotFoundException("Фильм с указанным Id не обнаружен");
-        }
-        updatedFilm.setName(film.getName());
-        updatedFilm.setDescription(film.getDescription());
-        updatedFilm.setReleaseDate(film.getReleaseDate());
-        updatedFilm.setDuration(film.getDuration());
-        filmStorage.addFilm(updatedFilm);
+        CommonHelper.validateFilm(film);
+        Film updatedFilm = jdbsFilmStorage.update(film);
+        jbdcGenreStorage.deleteGenre(updatedFilm);
+        updatedFilm.setGenres(jbdcGenreStorage.getGenre(film.getId()));
+        updatedFilm.setMpa(jbdcMpaStorage.getMpaRating(film.getMpa().getId()));
+        updatedFilm.setLikes(jbdcLikeStorage.getFilmLikes(film));
         return updatedFilm;
     }
 
     @Override
     public List<Film> getFilms() {
-        return filmStorage.getFilms();
+        return new ArrayList<>(jdbsFilmStorage.getAll());
     }
 
     @Override
-    public void addLike(Long usersId, Long filmsId) {
-        User user = userStorage.get(usersId);
-        Film film = filmStorage.get(filmsId);
-        if (film == null || user == null) {
-            throw new EntityNotFoundException("Ошибка, объект не обнаружен");
-        }
-        filmStorage.addLike(film,user);
+    public Film getFilmById(long id) {
+        Film film = jdbsFilmStorage.get(id);
+        film.setGenres(jbdcGenreStorage.getGenre(film.getId()));
+        film.setMpa(jbdcMpaStorage.getMpaRating(film.getMpa().getId()));
+        return film;
+    }
+
+    @Override
+    public void addLike(Long filmsId, Long usersId) {
+        Film film = jdbsFilmStorage.get(filmsId);
+        User user = jdbcUserStorage.get(usersId);
+        CommonHelper.checkCondition(film,user);
+        jbdcLikeStorage.addLike(film, user);
     }
 
     @Override
     public void deleteLike(Long usersId, Long filmsId) {
-        User user = userStorage.get(usersId);
-        Film film = filmStorage.get(filmsId);
-        if (film == null || user == null) {
-            throw new EntityNotFoundException("Ошибка, объект не обнаружен");
-        }
-        filmStorage.removeLike(film,user);
+        User user = jdbcUserStorage.get(usersId);
+        Film film = jdbsFilmStorage.get(filmsId);
+        CommonHelper.checkCondition(film,user);
+        CommonHelper.validateFilm(film);
+        CommonHelper.validateUser(user);
+        jbdcLikeStorage.removeLike(film,user);
     }
 
     @Override
     public List<Film> getMostPopularFilms(int count) {
-        return new ArrayList<>(filmStorage.getMostPopularFilms(count));
+        return new ArrayList<>(jbdcLikeStorage.getMostPopularFilms(count));
     }
 
-    private void validate(Film film) {
-        final LocalDate dataFlag = LocalDate.of(1895,12,28);
-        if (film.getReleaseDate().isBefore(dataFlag)) {
-            throw new ValidationException("Дата релиза фильма установлена до 1985 года");
-        }
+    @Override
+    public List<MPA> getAllRatings() {
+        return jbdcMpaStorage.getAllMpaRatings();
+    }
+
+    @Override
+    public MPA getRating(Long ratingId) {
+        return jbdcMpaStorage.getMpaRating(ratingId);
+    }
+
+    @Override
+    public Set<Genre> getGenres() {
+        return new LinkedHashSet<>(jbdcGenreStorage.getAllGenres());
+    }
+
+    @Override
+    public Genre getGenre(Long genreId) {
+        return jbdcGenreStorage.getGenreById(genreId);
     }
 
 }

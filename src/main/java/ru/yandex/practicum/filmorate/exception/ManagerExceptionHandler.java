@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import ru.yandex.practicum.filmorate.exception.model.Code;
 
 import java.util.HashMap;
@@ -33,6 +34,9 @@ public class ManagerExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleOtherException(Exception exception) {
+        if (exception instanceof HandlerMethodValidationException) {
+            return new ResponseEntity<>(exception.getMessage(),HttpStatus.NOT_FOUND);
+        }
         log.error("При попытке обратиться к объекту возникла ошибка: {}", exception.getMessage());
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
